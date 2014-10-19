@@ -1,16 +1,12 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ### Loading and preprocessing the data
 
 Load the activity.csv file from the /data/ folder in your working directory.
 
-```{r loadingAndProcessing}
+
+```r
         # Read Activity csv file
         data<-read.csv(file = './data/activity.csv')
 
@@ -23,37 +19,72 @@ Load the activity.csv file from the /data/ folder in your working directory.
 
 ### What is mean total number of steps taken per day?
 
-```{r calculateMeanMedian}
+
+```r
         # aggregate interval level steps data to daily totals
         aggregate<-aggregate(steps ~ date, data=data, sum)
         
         # calculate the mean steps per day using hte aggregate data
         mean(aggregate[,2])
+```
 
+```
+## [1] 10766
+```
+
+```r
         # calculate the median steps per day using hte aggregate data
         median(aggregate[,2])
+```
 
+```
+## [1] 10765
+```
+
+```r
         # Use ggplot2 package for graphing
         library(ggplot2)
-        
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.1
+```
+
+```r
         # Create simple bar chart showing total steps per day.
         qplot(x=date, y=steps, stat='identity', data=aggregate, geom="bar") + geom_hline(aes(yintercept=mean(aggregate[,2])), colour="#990000", linetype="dashed") + ggtitle("Total Steps per Day\n")
 ```
 
+![plot of chunk calculateMeanMedian](./PA1_template_files/figure-html/calculateMeanMedian.png) 
+
 
 ### What is the average daily activity pattern?
 
-```{r averageDailyPatter}
-        interval_aggregate<-aggregate(steps ~ interval, data=data, mean)
 
+```r
+        interval_aggregate<-aggregate(steps ~ interval, data=data, mean)
 
         max_steps_interval<-interval_aggregate[interval_aggregate$steps==max(interval_aggregate$steps),]$interval
         print(paste("Interval with highest average stesp = ", max_steps_interval))
-        print("Shown as red vertical line in the line graph below")
-
-        qplot(x=interval, y=steps, stat='identity', data=interval_aggregate, geom="line") + geom_vline(aes(xintercept=835, colour="#990000", linetype="dashed")) + ggtitle("Average Steps per Interval\n")
+```
 
 ```
+## [1] "Interval with highest average stesp =  835"
+```
+
+```r
+        print("Shown as red vertical line in the line graph below")
+```
+
+```
+## [1] "Shown as red vertical line in the line graph below"
+```
+
+```r
+        qplot(x=interval, y=steps, stat='identity', data=interval_aggregate, geom="line") + geom_vline(aes(xintercept=835, colour="#990000", linetype="dashed")) + ggtitle("Average Steps per Interval\n")
+```
+
+![plot of chunk averageDailyPatter](./PA1_template_files/figure-html/averageDailyPatter.png) 
 
 
 
@@ -61,15 +92,19 @@ Load the activity.csv file from the /data/ folder in your working directory.
 ### Imputing missing values  
 I have chosen the impute missing values by replacing the empty step values with mean steps for that interval.
     
-```{r missingValues}
+
+```r
         # Count the number of missing steps values
         numberOfEmptyValues<-sum(is.na(data$steps))
         print(paste("Number of missing vlaues = ", numberOfEmptyValues))
-        
 ```
 
-```{r imputation}
+```
+## [1] "Number of missing vlaues =  2304"
+```
 
+
+```r
         # Copy the raw data to a new new data frame dataImputationResult to hold the imputation results
         dataImputationResult<-data
 
@@ -84,19 +119,33 @@ I have chosen the impute missing values by replacing the empty step values with 
         }
 ```
 
-```{r imputation_results}
-        
+
+```r
         # calculate the total steps per day for the data with imputation results
         imputationAggregate3<-aggregate(steps ~ date, data=dataImputationResult, sum)
 
         # plot a bar graph of total steps per day
         qplot(x=date, y=steps, stat='identity', data=imputationAggregate3, geom="bar") + geom_hline(aes(yintercept=mean(imputationAggregate3[,2])), colour="#990000", linetype="dashed")
+```
 
+![plot of chunk imputation_results](./PA1_template_files/figure-html/imputation_results.png) 
+
+```r
         # calculate the mean steps per day based on the aggregate data
         mean(imputationAggregate3[,2])
+```
 
+```
+## [1] 10766
+```
+
+```r
         # calculate the median steps per day based on the aggregate data
         median(imputationAggregate3[,2])
+```
+
+```
+## [1] 10766
 ```
 
 
@@ -105,8 +154,8 @@ I have chosen the impute missing values by replacing the empty step values with 
 ### Are there differences in activity patterns between weekdays and weekends?
 
 
-```{r weekendDifferences}
-        
+
+```r
         # Use the weekdays function to label rows as weekend day (TRUE or FALSE)
         dataImputationResult$weekend<-data.frame(col1=ifelse((weekdays(dataImputationResult$date) %in% c('Saturday','Sunday')), TRUE, FALSE))$col1
 
@@ -126,5 +175,6 @@ I have chosen the impute missing values by replacing the empty step values with 
         par(mfrow=c(2,1))
         plot(meanStepsByIntervalWeekend,type="l",main="weekend",xlab="5 minute interval",ylab="Mean Steps")
         plot(meanStepsByIntervalWeekdays,type="l",main="weekdays",xlab="5 minute interval",ylab="Mean Steps")
-
 ```
+
+![plot of chunk weekendDifferences](./PA1_template_files/figure-html/weekendDifferences.png) 
